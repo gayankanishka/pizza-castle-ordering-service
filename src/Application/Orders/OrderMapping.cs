@@ -11,5 +11,7 @@ public class OrderMapping : Profile
     {
         CreateMap<CheckoutOrderCommand, Order>();
         CreateMap<Order, OrderDto>();
+        CreateMap<CartItemDto, CartItem>()
+            .ReverseMap();
     }
 }

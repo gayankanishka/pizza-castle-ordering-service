@@ -1,7 +1,6 @@
 using System.Runtime.Serialization;
 using MediatR;
 using PizzaCastle.OrderingService.Domain.Dtos;
-using PizzaCastle.OrderingService.Domain.Entities;
 using PizzaCastle.OrderingService.Domain.Enums;
 
 namespace PizzaCastle.OrderingService.Application.Orders.Commands.CheckoutOrder;
@@ -12,7 +11,7 @@ public class CheckoutOrderCommand : IRequest<CheckoutOrderDto>
     [DataMember]
     public string BuyerId { get; private set; }
     [DataMember]
-    public IEnumerable<CartItem> CartItems { get; private set; }
+    public IEnumerable<CartItemDto> CartItems { get; private set; }
     [DataMember]
     public decimal OrderTotal { get; private set; }
     [DataMember]
@@ -20,7 +19,7 @@ public class CheckoutOrderCommand : IRequest<CheckoutOrderDto>
     [DataMember]
     public OrderStatus OrderStatus { get; private set; }
 
-    public CheckoutOrderCommand(string buyerId, IEnumerable<CartItem> cartItems, decimal orderTotal, DateTime orderPlacedAt)
+    public CheckoutOrderCommand(string buyerId, IEnumerable<CartItemDto> cartItems, decimal orderTotal, DateTime orderPlacedAt)
     {
         BuyerId = buyerId;
         CartItems = cartItems;

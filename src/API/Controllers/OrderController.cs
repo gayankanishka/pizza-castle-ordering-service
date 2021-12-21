@@ -20,7 +20,7 @@ namespace PizzaCastle.OrderingService.API.Controllers
         
         [HttpPost]
         [Route("checkout")]
-        [ProducesResponseType(typeof(CheckoutOrderDto), (int)HttpStatusCode.Accepted)]
+        [ProducesResponseType(typeof(CheckoutOrderDto), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> CheckoutOrderAsync([FromBody] CheckoutOrderCommand command,
             CancellationToken cancellationToken)
@@ -29,7 +29,7 @@ namespace PizzaCastle.OrderingService.API.Controllers
 
             if (result.Accepted)
             {
-                return Accepted(result);
+                return Created(nameof(CheckoutOrderAsync), result);
             }
 
             return BadRequest();

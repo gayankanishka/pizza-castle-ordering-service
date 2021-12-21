@@ -21,6 +21,7 @@ public class GetOrdersByBuyerIdQueryHandler : IRequestHandler<GetOrdersByBuyerId
     {
         return await _repository.GetAll()
             .Where(x => x.BuyerId == request.BuyerId)
+            .Include(x => x.CartItems)
             .OrderByDescending(x => x.OrderPlacedAt)
             .Select(x => _mapper.Map<OrderDto>(x))
             .ToListAsync(cancellationToken);
