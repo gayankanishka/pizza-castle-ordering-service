@@ -1,0 +1,49 @@
+name: Build and Push to Docker Hub
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/docker-publish.yml'
+      - 'src/**'
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Docker - login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Docker - setup buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Docker - setup layer cache
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-buildx-
+
+      - name: Docker - Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: ./src/API/Dockerfile
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pizza-castle-ordering-service:latest
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
