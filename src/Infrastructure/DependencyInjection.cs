@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PizzaCastle.OrderingService.Application.Common.Interfaces;
 using PizzaCastle.OrderingService.Infrastructure.Persistence;
+using PizzaCastle.OrderingService.Infrastructure.Persistence.Repositories;
 
 namespace PizzaCastle.OrderingService.Infrastructure;
 
@@ -24,7 +26,7 @@ public static class DependencyInjection
         if (isInMemoryDatabase)
         {
             services.AddDbContextPool<ApplicationDbContext>(_ =>
-                _.UseInMemoryDatabase("MenuServiceDb"));
+                _.UseInMemoryDatabase("OrderingServiceDb"));
         }
         else
         {
@@ -34,6 +36,8 @@ public static class DependencyInjection
                     a =>
                         a.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
         }
+
+        services.AddScoped<IOrderRepository, OrderRepository>();
         
         return services;
     }
