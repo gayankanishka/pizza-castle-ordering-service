@@ -1,0 +1,32 @@
+name: Push PROD Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_tag:
+        type: string
+        description: Enter STAGING build tag
+        required: true
+
+jobs:
+  docker-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Docker - login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Push Docker Image
+        run: |
+          export STAGING_FULLTAG=gayankanishka/pizza-castle-ordering-service:${{ github.event.inputs.build_tag }}
+          export PROD_FULLTAG=gayankanishka/pizza-castle-ordering-service:main-${GITHUB_SHA:0:7}-$(date +%s)
+
+          docker pull ${STAGING_FULLTAG}
+          docker image tag ${STAGING_FULLTAG} ${PROD_FULLTAG}
+          docker image push ${PROD_FULLTAG}
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}

@@ -1,10 +1,9 @@
-name: Build and Push to Docker Hub
+name: Build DEV Docker Image and Push
 
 on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/docker-publish.yml'
       - 'src/**'
   workflow_dispatch:
 
@@ -35,15 +34,25 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: ${{ runner.os }}-buildx-
 
+      - name: Set Image Tag
+        run: |
+          export DOCKER_TAG=dev-${GITHUB_SHA:0:7}-$(date +%s)
+          echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_ENV
+
       - name: Docker - Build and push
         uses: docker/build-push-action@v2
         with:
           context: ./
           file: ./src/API/Dockerfile
           cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pizza-castle-ordering-service:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pizza-castle-ordering-service:${{ env.DOCKER_TAG }}
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
